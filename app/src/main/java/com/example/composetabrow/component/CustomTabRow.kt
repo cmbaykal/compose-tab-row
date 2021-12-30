@@ -5,10 +5,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Tab
-import androidx.compose.material.TabPosition
-import androidx.compose.material.TabRowDefaults
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,19 +20,46 @@ import androidx.compose.ui.unit.sp
 import com.example.composetabrow.base.color
 
 @Composable
-fun CustomTabRow(data: List<String>, click: (index: Int, data: String) -> Unit) {
-    var tabIndex by remember { mutableStateOf(0) }
+fun <T> CustomTabRow(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = "#8a11ed".color,
+    contentColor: Color = Color.White,
+    indicator: (@Composable (tabPositions: List<TabPosition>) -> Unit)? = null,
+    data: Array<T>,
+    selectedTabIndex: Int = 0,
+    click: (index: Int, data: T) -> Unit
+) {
+    CustomTabRow(
+        modifier = modifier,
+        selectedTabIndex = selectedTabIndex,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        indicator = indicator,
+        data = data.toList(),
+        click = click
+    )
+}
 
-    androidx.compose.material.TabRow(
-        modifier = Modifier
-            .padding(10.dp)
-            .clip(RoundedCornerShape(30.dp)),
-        backgroundColor = "#8a11ed".color,
+@Composable
+fun <T> CustomTabRow(
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = "#8a11ed".color,
+    contentColor: Color = Color.White,
+    indicator: (@Composable (tabPositions: List<TabPosition>) -> Unit)? = null,
+    data: List<T>,
+    selectedTabIndex: Int = 0,
+    click: (index: Int, data: T) -> Unit
+) {
+    var tabIndex by remember { mutableStateOf(selectedTabIndex) }
+
+    TabRow(
+        modifier = modifier,
+        backgroundColor = backgroundColor,
         selectedTabIndex = tabIndex,
-        indicator = { tabPositions ->
+        indicator = indicator ?: { tabPositions ->
             TabRowDefaults.Indicator(
                 Modifier.customTabIndicatorOffset(tabPositions[tabIndex]),
-                color = Color.White
+                color = contentColor
             )
         }
     ) {
@@ -54,8 +78,8 @@ fun CustomTabRow(data: List<String>, click: (index: Int, data: String) -> Unit) 
                         modifier = Modifier
                             .padding(bottom = 10.dp)
                             .alpha(if (tabIndex == index) 1f else 0.5f),
-                        text = data,
-                        color = Color.White,
+                        text = data.toString(),
+                        color = contentColor,
                         fontSize = 14.sp
                     )
                 })
@@ -82,7 +106,7 @@ fun Modifier.customTabIndicatorOffset(
     )
     fillMaxWidth()
         .wrapContentSize(Alignment.BottomStart)
-        .padding(bottom = 15.dp)
+        .padding(bottom = 12.dp)
         .offset(x = indicatorOffset)
         .width(size)
         .height(size)
@@ -92,6 +116,6 @@ fun Modifier.customTabIndicatorOffset(
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    CustomTabRow(listOf("Sosyal", "Keşfet", "Sen")) { i, d -> }
+    CustomTabRow(data = listOf("Sosyal", "Keşfet", "Sen")) { i, d -> }
 }
 
